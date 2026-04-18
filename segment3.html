@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SafeGuard - Smart Safety Utilities</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary: #ff416c;
+      --secondary: #ff4b2b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.8rem;
+      margin-bottom: 3rem;
+      font-weight: 700;
+      color: #fff;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #fff, 0 0 20px var(--primary);
+      }
+      to {
+        text-shadow: 0 0 20px #fff, 0 0 40px var(--secondary);
+      }
+    }
+
+    .utility-wrapper {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 30px;
+      padding: 40px;
+      max-width: 1300px;
+      margin: auto;
+      margin-bottom: 3rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+
+    .utility-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+    }
+
+    .utility-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 25px 30px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .utility-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #fff8c6;
+    }
+
+    .utility-card button {
+      background: white;
+      color: #ff416c;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      margin: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .utility-card button:hover {
+      background: #ff416c;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    #map {
+      height: 460px;
+      border-radius: 20px;
+      margin-top: 2rem;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #stealthFake {
+      display: none;
+      background: #eee;
+      color: #111;
+      text-align: center;
+      padding: 3rem;
+      margin-top: 2rem;
+      border-radius: 20px;
+    }
+
+    .stealth-mode .utility-wrapper,
+    .stealth-mode #map,
+    .stealth-mode h1 {
+      display: none !important;
+    }
+
+    .stealth-mode #stealthFake {
+      display: block !important;
+    }
+
+    .output {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #fff8c6;
+      max-height: 180px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+      scrollbar-width: thin;
+    }
+
+    .fab {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 999;
+    }
+
+    .fab button {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      color: #ff416c;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .fab button:hover {
+      background: #ff416c;
+      color: white;
+    }
+
+    @media(max-width: 600px) {
+      .utility-card button {
+        width: 100%;
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>✨ Smart Safety Utilities – <span style="color:#fff8c6;">SafeGuard</span></h1>
+  <!-- ADDED: Navigation -->
+<div style="text-align:center; margin-bottom:20px;">
+  <a href="./index.html" style="color:white; text-decoration:underline; font-weight:bold;">
+    ⬅ Back to Home
+  </a>
+</div>
+  <div class="utility-wrapper">
+    <div class="utility-grid">
+      <div class="utility-card">
+        <h3>🚨 Emergency Services</h3>
+        <button onclick="window.location.href='tel:100'">Call Police</button>
+        <button onclick="window.location.href='tel:102'">Call Ambulance</button>
+      </div>
+
+      <div class="utility-card">
+        <h3>📍 Zone Tagging</h3>
+        <button onclick="tagZone('safe')">Mark Safe</button>
+        <button onclick="tagZone('unsafe')">Mark Unsafe</button>
+        <button onclick="clearZones()">Clear Zones</button>
+      </div>
+
+      <div class="utility-card">
+        <h3>📊 Usage Analytics</h3>
+        <button onclick="showUsage()">Show Stats</button>
+        <div class="output" id="usageOutput"></div>
+      </div>
+
+      <div class="utility-card">
+        <h3>🌈 Theme Switcher</h3>
+        <button onclick="switchTheme('default')">Default</button>
+        <button onclick="switchTheme('dark')">Dark</button>
+        <button onclick="switchTheme('pink')">Pink</button>
+      </div>
+
+      <div class="utility-card">
+        <h3>🕵️‍♀️ Stealth Mode</h3>
+        <button onclick="toggleStealth()">Toggle Stealth</button>
+      </div>
+
+      <div class="utility-card">
+        <h3>⏱️ SafeCheck Timer</h3>
+        <button onclick="startSafeCheck()">Start 2-Min Timer</button>
+        <div class="output" id="safeCheckTimer"></div>
+      </div>
+
+      <div class="utility-card">
+        <h3>📌 Location History</h3>
+        <button onclick="showHistory()">Show Location History</button>
+        <button onclick="showZoneHistory()">Show Zone History</button>
+        <div class="output" id="locationHistory"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="stealthFake">
+    <h2>Calculator</h2>
+    <p>3 + 3 = 6</p>
+  </div>
+
+  <div class="fab">
+    <button title="SOS" onclick="window.location.href='tel:112'">🔴</button>
+    <button title="Mark Safe" onclick="tagZone('safe')">✅</button>
+    <button title="Mark Unsafe" onclick="tagZone('unsafe')">⚠️</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    let map, userLat, userLng;
+
+    const safeIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    const unsafeIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/1828/1828843.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    const hospitalIcon = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    });
+
+    const policeIcon = L.icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    });
+
+    const youIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -36]
+    });
+
+    function tagZone(type) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const zone = {
+          type,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          time: new Date().toLocaleString()
+        };
+        const zones = JSON.parse(localStorage.getItem("zones") || "[]");
+        zones.push(zone);
+        localStorage.setItem("zones", JSON.stringify(zones));
+        addZoneMarker(zone);
+        trackUsage(`Zone Tagged: ${type}`);
+
+        const history = JSON.parse(localStorage.getItem("locationHistory") || "[]");
+        history.push({ lat: zone.lat, lng: zone.lng, time: zone.time });
+        localStorage.setItem("locationHistory", JSON.stringify(history));
+        alert("📍 Zone marked as " + type); // ADDED
+      });
+    }
+
+    function clearZones() {
+      localStorage.removeItem("zones");
+      alert("All zones cleared.");
+      location.reload();
+    }
+
+    function addZoneMarker(zone) {
+      const icon = zone.type === "safe" ? safeIcon : unsafeIcon;
+      L.marker([zone.lat, zone.lng], { icon })
+        .addTo(map)
+        .bindPopup(`${zone.type.toUpperCase()} ZONE<br>${zone.time}`);
+    }
+
+    function trackUsage(feature) {
+      const stats = JSON.parse(localStorage.getItem("usageStats") || "{}");
+      stats[feature] = (stats[feature] || 0) + 1;
+      localStorage.setItem("usageStats", JSON.stringify(stats));
+    }
+
+    function showUsage() {
+      const stats = JSON.parse(localStorage.getItem("usageStats") || "{}");
+      let output = "<ul>";
+      for (let key in stats) {
+        output += `<li>${key}: ${stats[key]}</li>`;
+      }
+      output += "</ul>";
+      document.getElementById("usageOutput").innerHTML = output;
+    }
+
+    function showHistory() {
+      const history = JSON.parse(localStorage.getItem("locationHistory") || "[]");
+      const container = document.getElementById("locationHistory");
+      if (!history.length) {
+        container.innerHTML = "No history found.";
+        return;
+      }
+
+      let output = "<ul style='list-style:none;padding:0;'>";
+      history.forEach(h => {
+        output += `<li style="margin-bottom:6px;">
+          <button style="background:#fff8c6;color:#111;padding:6px 10px;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;"
+            onclick="map.setView([${h.lat}, ${h.lng}], 16); L.marker([${h.lat}, ${h.lng}]).addTo(map).bindPopup('Visited here at ${h.time}').openPopup();">
+            📍 ${h.time}<br>Lat: ${h.lat.toFixed(3)}, Lng: ${h.lng.toFixed(3)}
+          </button>
+        </li>`;
+      });
+      output += "</ul>";
+      container.innerHTML = output;
+    }
+
+    function showZoneHistory() {
+      const savedZones = JSON.parse(localStorage.getItem("zones") || "[]");
+      if (!savedZones.length) {
+        alert("No zone history found.");
+        return;
+      }
+      savedZones.forEach(zone => {
+        addZoneMarker(zone);
+      });
+      alert("Zone history loaded on map.");
+    }
+
+    function switchTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.style.setProperty('--primary', '#111');
+        document.documentElement.style.setProperty('--secondary', '#333');
+      } else if (theme === 'pink') {
+        document.documentElement.style.setProperty('--primary', '#ff9a9e');
+        document.documentElement.style.setProperty('--secondary', '#fad0c4');
+      } else {
+        document.documentElement.style.setProperty('--primary', '#ff416c');
+        document.documentElement.style.setProperty('--secondary', '#ff4b2b');
+      }
+    }
+
+   function toggleStealth() {
+  document.body.classList.toggle("stealth-mode");
+  alert("🕵️ Stealth mode activated"); // ADDED
+}
+
+    function startSafeCheck() {
+        trackUsage("SafeCheck Used"); // ADDED
+      let seconds = 120;
+      const display = document.getElementById("safeCheckTimer");
+      const interval = setInterval(() => {
+        seconds--;
+        display.textContent = `Time Left: ${seconds}s`;
+        if (seconds <= 0) {
+          clearInterval(interval);
+          display.textContent = "⏰ SafeCheck expired! Please check in.";
+         alert("⚠️ No response detected! Triggering emergency call."); // ADDED
+window.location.href = "tel:112"; // ADDED
+        }
+      }, 1000);
+    }
+
+    function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return (R * c).toFixed(2);
+    }
+
+    function loadMap() {
+      navigator.geolocation.getCurrentPosition(position => {
+        userLat = position.coords.latitude;
+        userLng = position.coords.longitude;
+        map = L.map('map').setView([userLat, userLng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([userLat, userLng], { icon: youIcon })
+          .addTo(map)
+          .bindPopup("<b style='color:#e91e63;'>📍 You are here</b>")
+          .openPopup();
+
+        const savedZones = JSON.parse(localStorage.getItem("zones") || "[]");
+        savedZones.forEach(addZoneMarker);
+
+        const query = `
+          [out:json];
+          (
+            node["amenity"="police"](around:3000,${userLat},${userLng});
+            node["amenity"="hospital"](around:3000,${userLat},${userLng});
+          );
+          out body;
+        `;
+
+        fetch("https://overpass-api.de/api/interpreter", {
+          method: "POST",
+          body: query
+        })
+        .then(res => res.json())
+        .then(data => {
+          data.elements.forEach(el => {
+            const name = el.tags.name || "Unnamed";
+            const type = el.tags.amenity === "police" ? "🚓 Police Station" : "🏥 Hospital";
+            const icon = el.tags.amenity === "police" ? policeIcon : hospitalIcon;
+            const distance = getDistanceKm(userLat, userLng, el.lat, el.lon);
+            L.marker([el.lat, el.lon], { icon })
+              .addTo(map)
+              .bindPopup(`<b>${type}</b><br>${name}<br>📍 ${distance} km away`);
+          });
+        });
+
+      }, () => {
+        alert("Location access denied or unavailable.");
+      });
+    }
+
+    loadMap();
+  </script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>s
+</body>
+</html>
+
