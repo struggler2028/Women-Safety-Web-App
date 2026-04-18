@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeGuard - Women Safety App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body {
+      margin: 0;
+      background: url('pic.jpg') no-repeat center center fixed;
+      background-size: cover;
+      overflow-x: hidden;
+      transition: background 0.3s ease;
+      color: #fff;
+    }
+    .welcome-banner {
+      background: #ff4081; color: white; padding: 10px; text-align: center;
+      position: relative; font-weight: bold;
+    }
+    .close-banner { position: absolute; right: 20px; top: 10px; cursor: pointer; }
+    .auth-box {
+      width: 360px; margin: 100px auto; background: rgba(255,255,255,0.9); padding: 20px;
+      border-radius: 16px; box-shadow: 0 0 12px rgba(0,0,0,0.2); color: #000;
+    }
+    .tab-buttons { display: flex; justify-content: space-around; margin-bottom: 10px; }
+    .tab-buttons button {
+      flex: 1; padding: 10px; background: #eee; border: none;
+      font-weight: bold; cursor: pointer;
+    }
+    .tab-buttons .active { background: #ff4081; color: white; }
+    .auth-form { display: flex; flex-direction: column; }
+    .auth-form input {
+      margin: 10px 0; padding: 10px; border-radius: 6px; border: 1px solid #ccc;
+    }
+    .toggle-password { cursor: pointer; margin-top: -24px; align-self: flex-end; margin-right: 10px; }
+    .forgot-link { color: #ff4081; font-size: 14px; cursor: pointer; margin-bottom: 10px; }
+    .error { color: red; font-size: 14px; }
+    .password-strength { font-size: 14px; margin-bottom: 5px; }
+    .weak { color: red; } .medium { color: orange; } .strong { color: green; }
+    .hidden { display: none; }
+    button[type="submit"] {
+      background: #ff4081; color: white; padding: 10px; border: none;
+      border-radius: 8px; cursor: pointer; margin-top: 10px;
+    }
+    .theme-toggle {
+      position: fixed; top: 20px; right: 20px; background: #222; color: white;
+      padding: 8px 14px; border-radius: 20px; cursor: pointer; z-index: 1000;
+    }
+    #dashboard { display: none; padding: 20px; max-width: 800px; margin: auto; }
+    .feature-card {
+      background: rgba(0,0,0,0.6); padding: 15px; margin: 10px 0;
+      border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .feature-card h3 { margin: 0 0 8px 0; }
+    .btn-action {
+      margin-top: 10px; background: #ff4081; color: white; padding: 8px 12px;
+      border: none; border-radius: 8px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-banner" id="welcomeBanner">
+    👋 Welcome to SafeGuard – Secure Login to Unlock Safety Features
+    <span class="close-banner" onclick="this.parentElement.style.display='none';">❌</span>
+  </div>
+
+  <div class="theme-toggle" onclick="toggleTheme()">🌓 Theme</div>
+
+  <div class="auth-box" id="authBox">
+    <div class="tab-buttons">
+      <button id="loginTab" class="active">Login</button>
+      <button id="signupTab">Signup</button>
+    </div>
+    <form id="loginForm" class="auth-form">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Username or Email" required />
+      <input type="password" id="loginPassword" placeholder="Password" required />
+      <span class="toggle-password" onclick="togglePassword('loginPassword', this)">👁️</span>
+      <div class="forgot-link" onclick="forgotPassword()">Forgot Password?</div>
+      <div class="error" id="loginError"></div>
+      <button type="submit">Login</button>
+    </form>
+    <form id="signupForm" class="auth-form hidden">
+      <h2>Signup</h2>
+      <input type="text" id="signupUsername" placeholder="Username" required />
+      <input type="email" id="signupEmail" placeholder="Email" required />
+      <input type="password" id="signupPassword" placeholder="Password" required />
+      <span class="toggle-password" onclick="togglePassword('signupPassword', this)">👁️</span>
+      <div id="strengthIndicator" class="password-strength"></div>
+      <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required />
+      <span class="toggle-password" onclick="togglePassword('signupConfirmPassword', this)">👁️</span>
+      <div class="error" id="signupError"></div>
+      <button type="submit">Signup</button>
+    </form>
+  </div>
+
+  <div id="dashboard">
+    <h2>Welcome to your SafeGuard Dashboard</h2>
+    <div class="feature-card"><h3>📳 Shake to Alert</h3><p>Shake your phone to send SOS.</p></div>
+    <div class="feature-card"><h3>🎤 Voice SOS</h3><p>Say "help me" to trigger alert.</p><button class="btn-action" onclick="startVoiceSOS()">Activate Voice Listener</button></div>
+    <div class="feature-card"><h3>🎭 Fake Call</h3><p>Fake incoming call screen.</p><button class="btn-action" onclick="fakeCall()">Trigger Fake Call</button></div>
+    <div class="feature-card"><h3>👥 Trusted Contacts</h3><input type="text" id="contact" placeholder="Add Contact"><button class="btn-action" onclick="addContact()">Add</button><ul id="contactsList"></ul></div>
+    <div class="feature-card"><h3>📓 Incident Diary</h3><textarea id="diaryEntry" placeholder="Write here..."></textarea><button class="btn-action" onclick="saveIncident()">Save Entry</button></div>
+    <!-- ADDED: Navigation to Segment 3 -->
+<button class="btn-action" onclick="window.location.href='segment3.html'">
+  🚀 Open Smart Safety Utilities
+</button>
+<!-- ADDED: Logout -->
+<button class="btn-action" onclick="logout()">🚪 Logout</button>
+  </div>
+// NOTE: This is a frontend prototype. User data is stored in localStorage for demonstration purposes only.
+  <script>
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+    const authBox = document.getElementById("authBox");
+    const dashboard = document.getElementById("dashboard");
+    const loginError = document.getElementById("loginError");
+    const signupError = document.getElementById("signupError");
+    const strengthIndicator = document.getElementById("strengthIndicator");
+
+    loginTab.onclick = () => {
+      loginForm.classList.remove("hidden"); signupForm.classList.add("hidden");
+      loginTab.classList.add("active"); signupTab.classList.remove("active");
+    };
+    signupTab.onclick = () => {
+      signupForm.classList.remove("hidden"); loginForm.classList.add("hidden");
+      signupTab.classList.add("active"); loginTab.classList.remove("active");
+    };
+    function togglePassword(id, icon) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+      icon.textContent = input.type === "text" ? "🚫" : "👁️";
+    }
+    document.getElementById("signupPassword").addEventListener("input", function () {
+      const p = this.value;
+      strengthIndicator.className = "password-strength";
+      strengthIndicator.textContent = p.length < 6 ? "Weak" : /[A-Z]/.test(p) && /\d/.test(p) && p.length >= 8 ? "Strong" : "Medium";
+      strengthIndicator.classList.add(p.length < 6 ? "weak" : /[A-Z]/.test(p) && /\d/.test(p) && p.length >= 8 ? "strong" : "medium");
+    });
+    signupForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("signupUsername").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const confirmPassword = document.getElementById("signupConfirmPassword").value;
+      if (!/^\S+@\S+\.\S+$/.test(email)) return signupError.textContent = "Invalid email format.";
+      if (password !== confirmPassword) return signupError.textContent = "Passwords do not match.";
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+      if (users.find(u => u.username === username)) return signupError.textContent = "Username exists.";
+      users.push({ username, email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Signup successful! Please login.");
+      loginTab.click();
+    });
+    loginForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find(u => (u.username === username || u.email === username) && u.password === password);
+    if (user) {
+  alert("✅ Login successful!"); // ADDED
+  authBox.style.display = "none";
+  dashboard.style.display = "block";
+  loadContacts();
+} else {
+        loginError.textContent = "Invalid username or password.";
+      }
+    });
+    function forgotPassword() {
+      alert("Password reset link sent to your email.");
+    }
+    function toggleTheme() {
+      document.body.style.filter = document.body.style.filter === "invert(1)" ? "none" : "invert(1)";
+    }
+
+    // Shake Detection
+    if (window.DeviceMotionEvent) {
+      let lastShake = 0;
+      window.addEventListener("devicemotion", function(event) {
+        const acc = event.accelerationIncludingGravity;
+        const shake = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+        if (shake > 35 && Date.now() - lastShake > 3000) {
+          alert("🚨 Shake detected! SOS Alert Sent.");
+          sendSOSMessageToContacts();
+          lastShake = Date.now();
+        }
+      });
+    }
+
+    // Voice SOS with message
+    function startVoiceSOS() {
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        alert("SpeechRecognition not supported."); return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.onresult = function(e) {
+        const transcript = e.results[0][0].transcript.toLowerCase();
+        if (transcript.includes("help")) {
+          alert("🔊 Voice SOS Triggered!");
+          sendSOSMessageToContacts();
+        } else {
+          alert("Heard: " + transcript);
+        }
+      };
+      recognition.start();
+    }
+
+    function sendSOSMessageToContacts() {
+      const contacts = JSON.parse(localStorage.getItem("trustedContacts") || "[]");
+      const message = "🚨 SOS Alert: I need help. Please check on me immediately!";
+      if (contacts.length === 0) return alert("No trusted contacts found.");
+      contacts.forEach(contact => {
+        console.log(`Sending SMS to ${contact}: ${message}`);
+      });
+      alert("📩 SOS message sent to trusted contacts.");
+    }
+
+    function fakeCall() {
+      alert("📞 Incoming fake call from Mom...");
+    }
+
+    function addContact() {
+      const contact = document.getElementById("contact").value;
+      if (!contact) return;
+      let contacts = JSON.parse(localStorage.getItem("trustedContacts") || "[]");
+      contacts.push(contact);
+      localStorage.setItem("trustedContacts", JSON.stringify(contacts));
+      loadContacts();
+    }
+
+    function loadContacts() {
+      const list = document.getElementById("contactsList");
+      list.innerHTML = "";
+      const contacts = JSON.parse(localStorage.getItem("trustedContacts") || "[]");
+      contacts.forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = c;
+        list.appendChild(li);
+      });
+    }
+
+    function saveIncident() {
+      const entry = document.getElementById("diaryEntry").value;
+      if (!entry) return;
+      const logs = JSON.parse(localStorage.getItem("incidentLogs") || "[]");
+      logs.push({ time: new Date().toLocaleString(), entry });
+      localStorage.setItem("incidentLogs", JSON.stringify(logs));
+      alert("Entry saved!");
+    }
+    // ADDED: Logout function
+function logout() {
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("authBox").style.display = "block";
+}
+  </script>
+</body>
+</html>
+
+segment 2

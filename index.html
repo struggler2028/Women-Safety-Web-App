@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Women Safety Web App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- ADDED: Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg: #fefefe;
+      --text: #111;
+      --accent: #9c27b0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      background: url('https://www.goaid.in/wp-content/uploads/2024/05/Womens-Safety-in-India-1024x576.png') no-repeat center center fixed;
+      background-size: cover;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+
+    header {
+      position: relative;
+      padding: 4rem 1rem 3rem;
+      text-align: center;
+      background: linear-gradient(135deg, #8e24aa, #d81b60);
+      color: white;
+      overflow: hidden;
+    }
+
+    header .wave-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+    }
+
+    .title-section h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      animation: slideIn 1s ease forwards;
+    }
+
+    .title-section .tagline {
+      font-size: 1.2rem;
+      font-style: italic;
+      opacity: 0.9;
+      margin-top: 0.5rem;
+      animation: fadeIn 2s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #themeToggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #themeToggle:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    nav ul {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      padding: 1rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+      color: #ffeb3b;
+    }
+
+    main {
+      padding: 2rem 1rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    section {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      border-left: 5px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 1rem;
+      margin-right: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #7b1fa2;
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-container iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input, textarea {
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      background-color: white;
+    }
+
+    #mapContainer {
+      height: 300px;
+      background: #eee;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #333;
+      color: white;
+    }
+
+    body.dark-mode {
+      --bg: #111;
+      --text: #fefefe;
+    }
+
+    body.dark-mode header,
+    body.dark-mode footer {
+      background: #222;
+    }
+
+    body.dark-mode section {
+      background: rgba(30, 30, 30, 0.95);
+    }
+
+    body.dark-mode input,
+    body.dark-mode textarea {
+      background-color: #222;
+      color: #fefefe;
+      border: 1px solid #666;
+    }
+
+    body.dark-mode #mapContainer {
+      background: #444;
+    }
+
+    .gradient-text {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #ffe53b, #ff2525);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+
+    .title-section .quote {
+      font-size: 1rem;
+      margin-top: 0.8rem;
+      color: #fff7f7;
+      font-style: italic;
+      animation: fadeIn 2.5s ease-in-out;
+    }
+
+    @keyframes floatIcons {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    #aiAssistant {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #9c27b0;
+      color: white;
+      font-size: 1.8rem;
+      padding: 12px 14px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 999;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      animation: floatIcons 2s infinite;
+    }
+
+    #chatBox {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 300px;
+      max-height: 400px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      z-index: 999;
+    }
+
+    #chatHeader {
+      background: #9c27b0;
+      color: white;
+      padding: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #chatContent {
+      padding: 10px;
+      height: 250px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+
+    #chatBox input {
+      border: none;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border-top: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div style="position: absolute; top: 1rem; left: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Logo" style="width: 40px; height: 40px;">
+    <span style="font-weight: 600; font-size: 0.95rem;">Stay Strong. Stay Safe.</span>
+  </div>
+
+  <button id="themeToggle">🌙</button>
+
+  <div class="header-container">
+    <div class="title-section">
+      <div style="font-size: 2rem; animation: floatIcons 2s ease-in-out infinite;">
+        🛡️ 💜 ✨ 👩‍💼 🔐
+      </div>
+      <h1 class="gradient-text">Women Safety App</h1>
+      <p class="tagline">Empowering Women, Ensuring Safety</p>
+      <p class="quote">"Your strength is your power. Your safety is your right."</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#emergency">Home</a></li>
+        <li><a href="#videos">Tutorials</a></li>
+        <li><a href="#map">Nearby Help</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="segment2.html">Login</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <svg class="wave-svg" viewBox="0 0 1440 100" preserveAspectRatio="none">
+    <path fill="#ffffff" fill-opacity="1"
+      d="M0,32L80,37.3C160,43,320,53,480,53.3C640,53,800,43,960,58.7C1120,75,1280,117,1360,138.7L1440,160L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z">
+    </path>
+  </svg>
+</header>
+
+<main>
+  <section id="emergency">
+    <h2>🚨 Emergency Help</h2>
+    <label for="contacts"><strong>Select Contact:</strong></label>
+    <select id="contacts">
+      <option value="+919876543210">Papa</option>
+      <option value="+919812345678">Mummy</option>
+      <option value="+918115674325">Bhai</option>
+    </select>
+    <button onclick="makeCall()">📞 Call Emergency</button>
+    <button onclick="sendSMS()">📩 Send Alert SMS</button>
+    <button onclick="playAlarm()">🔊 Sound Alarm</button>
+    <button onclick="window.location.href='segment3.html'">🚀 Advanced Safety Tools</button>
+  </section>
+
+  <section id="videos">
+    <h2>🥋 Self-defense Tutorials</h2>
+    <div class="video-container">
+      <iframe src="https://www.youtube.com/embed/KVpxP3ZZtAc" title="Self-defense tutorial" allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <section id="map">
+    <h2>📍 Nearby Help</h2>
+    <div id="mapContainer">Loading map...</div>
+  </section>
+
+  <section id="contact">
+    <h2>📫 Contact / Help</h2>
+    <form id="contactForm">
+      <input type="text" placeholder="Your Name" required />
+      <input type="email" placeholder="Your Email" required />
+      <textarea placeholder="Your Message" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Women Safety App</p>
+</footer>
+
+<script>
+  function makeCall() {
+  const number = document.getElementById("contacts").value;
+  alert("📞 Calling emergency contact..."); // ADDED
+  window.location.href = `tel:${number}`;
+}
+ function sendSMS() {
+  const number = document.getElementById("contacts").value;
+  const message = encodeURIComponent("⚠️ I'm feeling unsafe. Please help!");
+  alert("📩 Sending emergency alert message..."); // ADDED
+  window.location.href = `sms:${number}?body=${message}`;
+}
+  function playAlarm() {
+    const alarm = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+    alarm.loop = true;
+    alarm.play();
+  }
+
+  function toggleChat() {
+    const chatBox = document.getElementById("chatBox");
+    if (chatBox.style.display === "flex") {
+      chatBox.style.display = "none";
+    } else {
+      chatBox.style.display = "flex";
+      chatBox.style.flexDirection = "column";
+    }
+  }
+
+  function handleKey(e) {
+    if (e.key === "Enter") {
+      const input = document.getElementById("userInput");
+      const userText = input.value.trim();
+      if (userText) {
+        appendMessage("You", userText);
+        input.value = "";
+        getBotReply(userText);
+      }
+    }
+  }
+
+  function appendMessage(sender, text) {
+    const content = document.getElementById("chatContent");
+    const message = document.createElement("div");
+    message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    content.appendChild(message);
+    content.scrollTop = content.scrollHeight;
+  }
+
+  function getBotReply(userText) {
+    const reply = getBasicReply(userText.toLowerCase());
+    setTimeout(() => appendMessage("SafeBot", reply), 600);
+  }
+
+  function getBasicReply(text) {
+    if (text.includes("help")) return "I'm here to help! You can contact emergency services or send alerts using the buttons.";
+    if (text.includes("safe")) return "Always stay aware of your surroundings. Let me know if you need safety tips.";
+    if (text.includes("location")) return "I can guide you to nearby help centers using the map section.";
+    return "I'm still learning. Try asking about safety, location, or how to use the app.";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      document.getElementById("themeToggle").textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    });
+
+    const form = document.getElementById("contactForm");
+    const sendButton = form.querySelector('button[type="submit"]');
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      sendButton.textContent = "Message Sent ✅";
+      sendButton.disabled = true;
+      setTimeout(() => {
+        sendButton.textContent = "Send";
+        sendButton.disabled = false;
+        form.reset();
+      }, 3000);
+    });
+  });
+
+// ADDED: Leaflet Map with nearby hospitals & police (no API)
+function initMap() {
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      const map = L.map('mapContainer').setView([lat, lng], 14);
+
+      // Base map
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // User marker
+      L.marker([lat, lng]).addTo(map)
+        .bindPopup("📍 You are here")
+        .openPopup();
+
+      // 🔍 Fetch nearby hospitals + police
+      const query = `
+        [out:json];
+        (
+          node["amenity"="hospital"](around:2000,${lat},${lng});
+          node["amenity"="police"](around:2000,${lat},${lng});
+        );
+        out body;
+      `;
+
+      fetch("https://overpass-api.de/api/interpreter", {
+        method: "POST",
+        body: query
+      })
+      .then(res => res.json())
+      .then(data => {
+        data.elements.forEach(place => {
+          const name = place.tags.name || "Unnamed";
+          const type = place.tags.amenity === "police"
+            ? "🚓 Police Station"
+            : "🏥 Hospital";
+
+          L.marker([place.lat, place.lon])
+            .addTo(map)
+            .bindPopup(`<b>${type}</b><br>${name}`);
+        });
+      });
+    },
+    () => {
+      alert("Location access denied.");
+    }
+  );
+}
+  const safetyTips = [
+    "Trust your instincts. If something feels wrong, it probably is.",
+    "Always share your location with someone you trust when traveling alone.",
+    "Avoid isolated areas at night and stay in well-lit locations.",
+    "Keep emergency numbers on speed dial.",
+    "Use personal safety apps or devices that can alert your contacts quickly."
+  ];
+
+  const funFacts = [
+    "Did you know? The United Nations declared safety as a basic human right!",
+    "Strong is the new beautiful 💪.",
+    "Your voice matters. Always speak up and stay alert.",
+    "Every 8 minutes, a woman is helped through a safety app like this.",
+    "Confidence is your best defense. Walk tall, stay aware."
+  ];
+
+  function getSmartReply(input) {
+    const text = input.toLowerCase();
+
+    if (text.includes("help")) {
+      return random([
+        "I'm here for you! You can call or send an alert using the Emergency section.",
+        "Need help? Use the emergency buttons or tell me your concern.",
+        "Help is just one tap away – head to the Emergency Help section."
+      ]);
+    }
+
+    if (text.includes("safe") || text.includes("tips") || text.includes("advice")) {
+      return random(safetyTips);
+    }
+
+    if (text.includes("location") || text.includes("map")) {
+      return random([
+        "You can use the Nearby Help section to find police stations and hospitals.",
+        "The map will show you places nearby that can assist you.",
+        "Enable location and check the map for safe places nearby."
+      ]);
+    }
+
+    if (["hi", "hello", "hey"].some(greet => text.includes(greet))) {
+      return random([
+        "Hi there! 👋 I'm SafeBot – your safety companion.",
+        "Hello! How can I assist you today?",
+        "Hey! Need any safety tips or help using the app?"
+      ]);
+    }
+
+    if (text.includes("fact") || text.includes("motivate") || text.includes("inspire")) {
+      return random(funFacts);
+    }
+
+    if (text.includes("thanks") || text.includes("thank you")) {
+      return "You're welcome! Stay safe and strong 💜";
+    }
+
+    return "I'm learning more every day! Try asking about safety tips, location, or emergency help.";
+  }
+
+  function random(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function appendMessage(sender, text) {
+    const content = document.getElementById("chatContent");
+    const message = document.createElement("div");
+    message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    content.appendChild(message);
+    content.scrollTop = content.scrollHeight;
+  }
+
+  function getBotReply(userText) {
+    const reply = getSmartReply(userText);
+    setTimeout(() => appendMessage("SafeBot", reply), 600);
+  }
+
+  function handleKey(e) {
+    if (e.key === "Enter") {
+      const input = document.getElementById("userInput");
+      const userText = input.value.trim();
+      if (userText) {
+        appendMessage("You", userText);
+        input.value = "";
+        getBotReply(userText);
+      }
+    }
+  }
+</script>
+<!-- NOTE: API key is used for demo purposes. In production, restrict and secure it. -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJyV1ogbif9eo8GNftRTPom9pH1mb_oDE&callback=initMap&libraries=places"></script>
+
+<!-- AI Assistant Button -->
+<div id="aiAssistant" onclick="toggleChat()">🤖</div>
+
+<!-- Chat Box -->
+<div id="chatBox">
+  <div id="chatHeader">SafeBot Assistant</div>
+  <div id="chatContent"></div>
+  <input type="text" id="userInput" placeholder="Ask me anything..." onkeypress="handleKey(event)" />
+</div>
+<!-- ADDED: Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</body>
+</html>
