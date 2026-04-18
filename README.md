@@ -1,20 +1,24 @@
 # Women Safety Web App 🚨
 
-A multi-module safety platform providing emergency assistance, smart triggers, and location-based services.
+A multi-layered safety platform designed to provide emergency assistance, real-time tracking, and intelligent safety features.
 
-## Features
+## 🔹 Features
 - Emergency call, SMS alerts, and alarm system
-- Leaflet-based map showing nearby hospitals and police stations
-- Login/Signup system with validation
-- Voice and Shake SOS triggers
-- Trusted contacts and incident diary
-- Zone tagging, analytics, and stealth mode
+- Leaflet-based live map showing nearby hospitals and police stations
+- Login/Signup system with validation (LocalStorage)
+- Voice & Shake-based SOS triggers
+- Trusted contacts & incident diary
+- Zone tagging and safety analytics
+- Stealth mode for disguised usage
 
-## Tech Stack
+## 🔹 Tech Stack
 - HTML, CSS, JavaScript
 - Leaflet (OpenStreetMap)
 - Overpass API
 - LocalStorage
 
-## Status
-Ongoing modular project (Segment-based development)
+## 🔹 Live Demo
+👉 https://struggler2028.github.io/Women-Safety-Web-App/
+
+## 🔹 Status
+Ongoing modular project (Segment-based architecture)
